@@ -41,9 +41,10 @@ print("="*80)
 
 print("\nInitializing LLM...")
 llm = ChatOpenAI(
-    model=os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini'),
+    model=os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-6-luna'),
     temperature=0,
-    api_key=os.getenv('OPENAI_API_KEY')
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
 )
 print("✓ LLM initialized")
 

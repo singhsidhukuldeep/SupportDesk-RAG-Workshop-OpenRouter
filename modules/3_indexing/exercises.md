@@ -98,13 +98,24 @@ import os
 from dotenv import load_dotenv
 from llama_index.core import VectorStoreIndex, SummaryIndex, TreeIndex, KeywordTableIndex, Document, Settings
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai_like import OpenAILike
 
 load_dotenv()
 
 # Configure LlamaIndex
-Settings.embed_model = OpenAIEmbedding(model='text-embedding-3-small')
-Settings.llm = OpenAI(model='gpt-4o-mini')
+Settings.embed_model = OpenAIEmbedding(
+    model_name='openai/text-embedding-3-small',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_base="https://openrouter.ai/api/v1",
+)
+Settings.llm = OpenAILike(
+    model='openai/gpt-6-luna',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_base="https://openrouter.ai/api/v1",
+    is_chat_model=True,
+    is_function_calling_model=True,
+    context_window=128000,
+)
 
 # Load data
 with open('../../data/synthetic_tickets.json', 'r', encoding='utf-8') as f:
@@ -168,12 +179,23 @@ import os
 from dotenv import load_dotenv
 from llama_index.core import VectorStoreIndex, Document, Settings, StorageContext, load_index_from_storage
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai_like import OpenAILike
 
 load_dotenv()
 
-Settings.embed_model = OpenAIEmbedding(model='text-embedding-3-small')
-Settings.llm = OpenAI(model='gpt-4o-mini')
+Settings.embed_model = OpenAIEmbedding(
+    model_name='openai/text-embedding-3-small',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_base="https://openrouter.ai/api/v1",
+)
+Settings.llm = OpenAILike(
+    model='openai/gpt-6-luna',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_base="https://openrouter.ai/api/v1",
+    is_chat_model=True,
+    is_function_calling_model=True,
+    context_window=128000,
+)
 
 # Load data
 with open('../../data/synthetic_tickets.json', 'r', encoding='utf-8') as f:
@@ -230,12 +252,23 @@ from dotenv import load_dotenv
 from llama_index.core import VectorStoreIndex, Document, Settings
 from llama_index.core.vector_stores import MetadataFilters, ExactMatchFilter
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai_like import OpenAILike
 
 load_dotenv()
 
-Settings.embed_model = OpenAIEmbedding(model='text-embedding-3-small')
-Settings.llm = OpenAI(model='gpt-4o-mini')
+Settings.embed_model = OpenAIEmbedding(
+    model_name='openai/text-embedding-3-small',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_base="https://openrouter.ai/api/v1",
+)
+Settings.llm = OpenAILike(
+    model='openai/gpt-6-luna',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_base="https://openrouter.ai/api/v1",
+    is_chat_model=True,
+    is_function_calling_model=True,
+    context_window=128000,
+)
 
 # Load data
 with open('../../data/synthetic_tickets.json', 'r', encoding='utf-8') as f:
@@ -286,12 +319,23 @@ import os
 from dotenv import load_dotenv
 from llama_index.core import VectorStoreIndex, SummaryIndex, KeywordTableIndex, Document, Settings
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai_like import OpenAILike
 
 load_dotenv()
 
-Settings.embed_model = OpenAIEmbedding(model='text-embedding-3-small')
-Settings.llm = OpenAI(model='gpt-4o-mini')
+Settings.embed_model = OpenAIEmbedding(
+    model_name='openai/text-embedding-3-small',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_base="https://openrouter.ai/api/v1",
+)
+Settings.llm = OpenAILike(
+    model='openai/gpt-6-luna',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_base="https://openrouter.ai/api/v1",
+    is_chat_model=True,
+    is_function_calling_model=True,
+    context_window=128000,
+)
 
 # Load data
 with open('../../data/synthetic_tickets.json', 'r', encoding='utf-8') as f:
@@ -345,12 +389,23 @@ import os
 from dotenv import load_dotenv
 from llama_index.core import VectorStoreIndex, KeywordTableIndex, Document, Settings
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai_like import OpenAILike
 
 load_dotenv()
 
-Settings.embed_model = OpenAIEmbedding(model='text-embedding-3-small')
-Settings.llm = OpenAI(model='gpt-4o-mini')
+Settings.embed_model = OpenAIEmbedding(
+    model_name='openai/text-embedding-3-small',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_base="https://openrouter.ai/api/v1",
+)
+Settings.llm = OpenAILike(
+    model='openai/gpt-6-luna',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_base="https://openrouter.ai/api/v1",
+    is_chat_model=True,
+    is_function_calling_model=True,
+    context_window=128000,
+)
 
 # Load data
 with open('../../data/synthetic_tickets.json', 'r', encoding='utf-8') as f:

@@ -55,14 +55,14 @@ from llama_index.core import (
     Settings             # Global configuration
 )
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai_like import OpenAILike  # Any OpenAI-compatible API (OpenRouter)
 
 # =============================================================================
 # SETUP: Load Environment Variables
 # =============================================================================
 load_dotenv()
 
-# Set longer timeout for httpx (used by OpenAI client)
+# Set longer timeout for httpx (used by the OpenAI-compatible client)
 # Some index types make MANY LLM calls and need more time
 os.environ["HTTPX_TIMEOUT"] = "300"  # 5 minutes
 
@@ -77,14 +77,21 @@ os.environ["HTTPX_TIMEOUT"] = "300"  # 5 minutes
 # These settings apply globally to all indexes we create.
 # =============================================================================
 Settings.embed_model = OpenAIEmbedding(
-    model=os.getenv('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small'),
-    api_key=os.getenv('OPENAI_API_KEY'),
+    model_name=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    api_base="https://openrouter.ai/api/v1",
     timeout=120,      # 2 min timeout for embedding calls
     max_retries=5     # Retry on failure
 )
-Settings.llm = OpenAI(
-    model=os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini'),
-    api_key=os.getenv('OPENAI_API_KEY'),
+# OpenAILike is used because LlamaIndex's OpenAI class only accepts model
+# names it already knows (e.g. 'gpt-4o-mini'), not OpenRouter names.
+Settings.llm = OpenAILike(
+    model=os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-6-luna'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    api_base="https://openrouter.ai/api/v1",
+    is_chat_model=True,
+    is_function_calling_model=True,
+    context_window=128000,
     timeout=300,      # 5 min timeout (Tree/Keyword indexes are slow!)
     max_retries=5
 )

@@ -196,10 +196,13 @@ print(f"  Sample chunk: {recursive_chunks[0].page_content[:100]}...")
 print("\n--- Strategy 3: Semantic Chunking ---")
 print("  Note: Semantic chunking uses embeddings to find natural break points")
 
-# Initialize OpenAI embeddings for semantic chunker
+# Initialize embeddings (via OpenRouter) for semantic chunker
 # IMPORTANT: This costs money! Each sentence needs an embedding API call
 embeddings_model = OpenAIEmbeddings(
-    model=os.getenv('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small')
+    model=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
 )
 
 # Demo with a paragraph that has CLEAR topic shifts
@@ -404,7 +407,10 @@ print("="*80)
 
 # Use LangChain's embedding wrapper (handles API calls internally)
 embeddings_model = OpenAIEmbeddings(
-    model=os.getenv('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small')
+    model=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
 )
 
 query = "Authentication problems after password reset"
@@ -427,7 +433,7 @@ existing_store.delete_collection()
 #   4. Persists to disk (if persist_directory specified)
 chroma_store = Chroma.from_documents(
     documents=documents,              # Our LangChain Document objects
-    embedding=embeddings_model,       # OpenAI embeddings
+    embedding=embeddings_model,       # OpenAI embeddings via OpenRouter
     collection_name="support_tickets",# Like a "table" in a database
     persist_directory="./chroma_db"   # Save to disk for persistence
 )

@@ -217,7 +217,10 @@ chunks = text_splitter.split_documents(documents)
 from langchain_openai import OpenAIEmbeddings
 
 embeddings = OpenAIEmbeddings(
-    model="text-embedding-3-small"
+    model="openai/text-embedding-3-small",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
 )
 ```
 
@@ -265,7 +268,9 @@ prompt = ChatPromptTemplate.from_template(template)
 from langchain_openai import ChatOpenAI
 
 llm = ChatOpenAI(
-    model="gpt-4o-mini",
+    model="openai/gpt-6-luna",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
     temperature=0  # Deterministic for factual answers
 )
 ```
@@ -358,7 +363,12 @@ You cannot search text by meaning using a keyword index. What you need is to pro
 ```python
 from langchain_openai import OpenAIEmbeddings
 
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings = OpenAIEmbeddings(
+    model="openai/text-embedding-3-small",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
+)
 
 # Embed a single query to see what a vector looks like
 vector = embeddings.embed_query("authentication failure after password reset")
@@ -546,7 +556,9 @@ With the prompt assembled and filled, `ChatOpenAI` sends it to the model and get
 from langchain_openai import ChatOpenAI
 
 llm = ChatOpenAI(
-    model="gpt-4o-mini",
+    model="openai/gpt-6-luna",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
     temperature=0,      # deterministic — same prompt → same answer every time
     timeout=120,
     max_retries=3,
@@ -1240,6 +1252,9 @@ best = max(results, key=lambda x: x.get("confidence", 0))
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
 
 streaming_llm = ChatOpenAI(
+    model="openai/gpt-6-luna",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
     streaming=True,
     callbacks=[StreamingStdOutCallbackHandler()]
 )
@@ -1267,6 +1282,9 @@ class CustomStreamHandler(BaseCallbackHandler):
         # Send to WebSocket, UI, etc.
 
 llm = ChatOpenAI(
+    model="openai/gpt-6-luna",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
     streaming=True,
     callbacks=[CustomStreamHandler()]
 )

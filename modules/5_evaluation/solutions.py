@@ -50,10 +50,15 @@ Resolution: {ticket['resolution']}"""
 
 print(f"✓ Loaded {len(documents)} documents, {len(eval_queries)} eval queries")
 
-# Initialize embeddings and OpenAI client
-embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
-openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-chat_model = os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini')
+# Initialize embeddings and the OpenAI client, both pointed at OpenRouter
+embeddings = OpenAIEmbeddings(
+    model=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
+)
+openai_client = OpenAI(api_key=os.getenv('OPENROUTER_API_KEY'), base_url="https://openrouter.ai/api/v1")
+chat_model = os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-6-luna')
 
 # Build vector store
 print("Building vector store...")

@@ -218,7 +218,12 @@ for ticket in tickets:
     documents.append(doc)
 
 # Create vector store
-embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
+embeddings = OpenAIEmbeddings(
+    model='openai/text-embedding-3-small',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
+)
 store = Chroma.from_documents(documents, embeddings, collection_name="exercise7")
 
 # Search with combined filter
@@ -274,7 +279,12 @@ documents = [
     for t in tickets
 ]
 
-embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
+embeddings = OpenAIEmbeddings(
+    model='openai/text-embedding-3-small',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
+)
 
 # Step 1: Build and save (Chroma persists with persist_directory)
 print("Building vector store...")
@@ -360,7 +370,12 @@ fixed_splitter = RecursiveCharacterTextSplitter(chunk_size=300, chunk_overlap=30
 fixed_chunks = fixed_splitter.split_documents([doc])
 
 # Semantic chunking
-embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
+embeddings = OpenAIEmbeddings(
+    model='openai/text-embedding-3-small',
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
+)
 semantic_splitter = SemanticChunker(embeddings, breakpoint_threshold_type="percentile")
 semantic_chunks = semantic_splitter.split_documents([doc])
 

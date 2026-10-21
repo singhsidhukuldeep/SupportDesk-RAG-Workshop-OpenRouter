@@ -22,7 +22,7 @@ python --version
 
 ### Module 1: Embeddings & Semantic Search
 **Core Skills:**
-- Generated embeddings using OpenAI's `text-embedding-3-small` (1536 dimensions)
+- Generated embeddings using OpenAI's `text-embedding-3-small` via OpenRouter (1536 dimensions)
 - Computed cosine similarity to measure semantic relationships
 - Visualized actual similarity relationships using heatmaps (not misleading 2D projections!)
 - Implemented semantic search that finds meaning, not just keywords

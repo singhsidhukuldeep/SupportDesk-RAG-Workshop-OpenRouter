@@ -18,9 +18,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize client
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-model = os.getenv('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small')
+# Initialize client (OpenRouter uses the OpenAI-compatible API)
+client = OpenAI(api_key=os.getenv('OPENROUTER_API_KEY'), base_url="https://openrouter.ai/api/v1")
+model = os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small')
 
 # Load data (used by multiple exercises)
 print("Loading data...")

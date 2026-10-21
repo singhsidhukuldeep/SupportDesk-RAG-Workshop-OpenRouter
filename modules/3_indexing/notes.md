@@ -78,7 +78,7 @@ index = VectorStoreIndex.from_documents(documents)
 retriever = index.as_retriever(similarity_top_k=3)
 
 # Use in LangChain chain
-llm = ChatOpenAI(model="gpt-4o-mini")
+llm = ChatOpenAI(model="openai/gpt-6-luna", base_url="https://openrouter.ai/api/v1", api_key=os.getenv("OPENROUTER_API_KEY"))
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
     retriever=retriever,
@@ -1691,7 +1691,7 @@ retriever = index.as_retriever(
 )
 
 # Step 3: Use in LangChain chain
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm = ChatOpenAI(model="openai/gpt-6-luna", base_url="https://openrouter.ai/api/v1", api_key=os.getenv("OPENROUTER_API_KEY"), temperature=0)
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
     chain_type="stuff",
@@ -1749,7 +1749,7 @@ retriever = LlamaIndexRetriever(vector_index, similarity_top_k=5)
 from langchain.chains import ConversationalRetrievalChain
 
 qa = ConversationalRetrievalChain.from_llm(
-    llm=ChatOpenAI(model="gpt-4o-mini"),
+    llm=ChatOpenAI(model="openai/gpt-6-luna", base_url="https://openrouter.ai/api/v1", api_key=os.getenv("OPENROUTER_API_KEY")),
     retriever=retriever,
     return_source_documents=True
 )
@@ -1795,7 +1795,7 @@ Question: {question}
 Answer:"""
 
 prompt = PromptTemplate(template=template, input_variables=["context", "question"])
-llm = ChatOpenAI(model="gpt-4o-mini")
+llm = ChatOpenAI(model="openai/gpt-6-luna", base_url="https://openrouter.ai/api/v1", api_key=os.getenv("OPENROUTER_API_KEY"))
 chain = LLMChain(llm=llm, prompt=prompt)
 
 # Query
@@ -1835,7 +1835,7 @@ tools = [
 ]
 
 # Create agent
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm = ChatOpenAI(model="openai/gpt-6-luna", base_url="https://openrouter.ai/api/v1", api_key=os.getenv("OPENROUTER_API_KEY"), temperature=0)
 agent = initialize_agent(
     tools=tools,
     llm=llm,
@@ -1874,14 +1874,14 @@ index = VectorStoreIndex.from_documents(docs, storage_context=storage_context)
 langchain_vectorstore = Chroma(
     client=chroma_client,
     collection_name="documents",
-    embedding_function=OpenAIEmbeddings()
+    embedding_function=OpenAIEmbeddings(model="openai/text-embedding-3-small", api_key=os.getenv("OPENROUTER_API_KEY"), base_url="https://openrouter.ai/api/v1", check_embedding_ctx_length=False)
 )
 retriever = langchain_vectorstore.as_retriever()
 
 # Option 2: Build with LangChain, use in LlamaIndex
 langchain_vectorstore = Chroma.from_documents(
     documents=langchain_docs,
-    embedding=OpenAIEmbeddings(),
+    embedding=OpenAIEmbeddings(model="openai/text-embedding-3-small", api_key=os.getenv("OPENROUTER_API_KEY"), base_url="https://openrouter.ai/api/v1", check_embedding_ctx_length=False),
     persist_directory="./chroma_db"
 )
 
@@ -1940,7 +1940,7 @@ def create_rag_chain():
     retriever = index.as_retriever(similarity_top_k=3)
     
     # Build LangChain chain
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    llm = ChatOpenAI(model="openai/gpt-6-luna", base_url="https://openrouter.ai/api/v1", api_key=os.getenv("OPENROUTER_API_KEY"), temperature=0)
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         retriever=retriever,

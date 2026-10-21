@@ -68,29 +68,37 @@ Resolution: {ticket['resolution']}"""
 
 # Initialize embeddings and LLM with timeout
 embeddings = OpenAIEmbeddings(
-    model=os.getenv('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small'),
+    model=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
     request_timeout=30
 )
 
-# Use direct OpenAI client instead of LangChain ChatOpenAI (fixes connection pooling issue)
-openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'), timeout=30.0, max_retries=2)
-chat_model = os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini')
+# Use direct OpenAI client (pointed at OpenRouter) instead of LangChain ChatOpenAI (fixes connection pooling issue)
+openai_client = OpenAI(
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+    timeout=30.0,
+    max_retries=2,
+)
+chat_model = os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-6-luna')
 
-print("✓ OpenAI models initialized (30s timeout)")
+print("✓ OpenRouter models initialized (30s timeout)")
 
 # Test API connection
-print("\nTesting OpenAI API connection...")
+print("\nTesting OpenRouter API connection...")
 try:
     test_response = openai_client.chat.completions.create(
         model=chat_model,
         messages=[{"role": "user", "content": "Say 'OK'"}],
-        max_tokens=5
+        max_tokens=200
     )
     print("✓ API connection successful")
 except Exception as e:
     print(f"✗ API connection failed: {str(e)[:100]}")
     print("\nPlease check:")
-    print("  1. OPENAI_API_KEY is set correctly in .env")
+    print("  1. OPENROUTER_API_KEY is set correctly in .env")
     print("  2. You have internet connectivity")
     print("  3. Your API key is valid and has credits")
     exit(1)
@@ -127,7 +135,7 @@ Question: {query}
 
 Answer (cite ticket IDs):"""
     
-    # Generate answer using direct OpenAI client
+    # Generate answer using the OpenAI client (via OpenRouter)
     response = openai_client.chat.completions.create(
         model=chat_model,
         messages=[{"role": "user", "content": prompt}],
@@ -252,7 +260,7 @@ print("="*80)
 print("\nMetrics: Groundedness, Response Completeness")
 print("Measures: Is the generated answer faithful and complete?")
 
-# Initialize OpenAI client for LLM-as-judge (reuse the same client)
+# Reuse the same OpenRouter client for LLM-as-judge
 client = openai_client
 
 def evaluate_groundedness(answer, context_docs):
@@ -285,7 +293,7 @@ Reasoning: <explanation>"""
 
     try:
         response = client.chat.completions.create(
-            model=os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini'),
+            model=chat_model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
             timeout=30
@@ -359,7 +367,7 @@ Reasoning: <explanation>"""
 
     try:
         response = client.chat.completions.create(
-            model=os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini'),
+            model=chat_model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
             timeout=30

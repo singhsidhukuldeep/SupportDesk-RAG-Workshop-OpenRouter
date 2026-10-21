@@ -23,7 +23,7 @@ import time
 from operator import itemgetter  # Used in exercises/solutions for LCEL key extraction
 # LangChain is a framework for building LLM applications
 # Reference: https://python.langchain.com/docs/get_started/introduction
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI  # OpenAI integrations
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI  # OpenAI-compatible integrations (used with OpenRouter)
 from langchain_chroma import Chroma  # Vector database for similarity search
 from langchain_text_splitters import RecursiveCharacterTextSplitter  # Smart text chunking
 from langchain_core.documents import Document  # Document abstraction
@@ -103,14 +103,17 @@ Resolution:
 
 print(f"✓ Created {len(documents)} documents with metadata")
 
-# Initialize OpenAI embeddings
+# Initialize embeddings (OpenAI's embedding model, served through OpenRouter)
 # Embeddings convert text into vectors for semantic search
 # Reference: https://platform.openai.com/docs/guides/embeddings
-print("\nInitializing OpenAI embedding model...")
+print("\nInitializing embedding model...")
 embeddings = OpenAIEmbeddings(
-    model=os.getenv('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small')
+    model=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
 )
-print("✓ OpenAI embedding model ready")
+print("✓ Embedding model ready")
 
 # Build vector store using Chroma
 # Chroma is an open-source vector database optimized for AI applications
@@ -220,23 +223,25 @@ print("\n" + "="*80)
 print("PART 4: Initializing Language Model")
 print("="*80)
 
-# Check if OpenAI key is available
-if os.getenv("OPENAI_API_KEY"):
-    print("✓ OpenAI API key found")
+# Check if OpenRouter key is available
+if os.getenv("OPENROUTER_API_KEY"):
+    print("✓ OpenRouter API key found")
     # Initialize ChatOpenAI for generation
     # Reference: https://python.langchain.com/docs/integrations/chat/openai
     llm = ChatOpenAI(
-        model=os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini'),
+        model=os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-6-luna'),
+        api_key=os.getenv('OPENROUTER_API_KEY'),
+        base_url="https://openrouter.ai/api/v1",
         temperature=0,  # Temperature controls randomness (0 = deterministic, 2 = very creative)
         # For RAG, use temperature=0 to ensure consistent, factual responses
         # Reference: https://platform.openai.com/docs/guides/text-generation/how-should-i-set-the-temperature-parameter
         timeout=120,  # Increase timeout for slower connections
         max_retries=3,  # Retry on transient failures
     )
-    print(f"✓ Using {os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini')}")
+    print(f"✓ Using {os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-6-luna')}")
 else:
-    print("⚠ OpenAI API key not found!")
-    print("  Please set OPENAI_API_KEY environment variable")
+    print("⚠ OpenRouter API key not found!")
+    print("  Please set OPENROUTER_API_KEY environment variable")
     print("  Or use Ollama: ollama pull llama2")
     print("\nFor this demo, we'll show the prompt without generating answers.")
     llm = None
@@ -567,8 +572,8 @@ if qa_chain:
         print(f"\n📎 Sources: {', '.join([doc.metadata['ticket_id'] for doc in docs])}")
         print()
 else:
-    print("\n⚠ Interactive mode requires OpenAI API key")
-    print("Set OPENAI_API_KEY to try the interactive assistant!")
+    print("\n⚠ Interactive mode requires an OpenRouter API key")
+    print("Set OPENROUTER_API_KEY to try the interactive assistant!")
 
 print("\n" + "="*80)
 print("DEMO COMPLETE!")

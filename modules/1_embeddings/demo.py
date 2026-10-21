@@ -52,16 +52,21 @@ from dotenv import load_dotenv  # Load environment variables from .env file
 # Store them in a .env file and load with python-dotenv
 #
 # Your .env file should contain:
-#   OPENAI_API_KEY=sk-...
-#   OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+#   OPENROUTER_API_KEY=sk-or-...
+#   OPENROUTER_EMBEDDING_MODEL=openai/text-embedding-3-small
 # =============================================================================
 load_dotenv()
 
 # =============================================================================
-# INITIALIZE OPENAI CLIENT
+# INITIALIZE OPENROUTER CLIENT
 # =============================================================================
-print("Initializing OpenAI client...")
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+# OpenRouter speaks the same API as OpenAI, so we reuse the OpenAI client
+# and just point it at OpenRouter's URL with an OpenRouter key.
+print("Initializing OpenRouter client...")
+client = OpenAI(
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+)
 
 # =============================================================================
 # EMBEDDING MODEL SELECTION
@@ -75,16 +80,16 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 # | text-embedding-3-large   | 3072       | $0.13/1M tok  | Higher quality      |
 # | text-embedding-ada-002   | 1536       | $0.10/1M tok  | Legacy (deprecated) |
 #
-# WE USE: text-embedding-3-small
+# WE USE: text-embedding-3-small (called 'openai/text-embedding-3-small' on OpenRouter)
 #   - Good balance of quality and cost
 #   - 1536 dimensions is plenty for most use cases
 #   - ~6x cheaper than large model
 #
 # Reference: https://platform.openai.com/docs/guides/embeddings/embedding-models
 # =============================================================================
-embedding_model = os.getenv('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small')
+embedding_model = os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small')
 embedding_dim = 1536  # Number of dimensions in the embedding vector
-print(f"Using OpenAI model: {embedding_model}")
+print(f"Using embedding model: {embedding_model}")
 print(f"Embedding dimension: {embedding_dim}")
 
 # =============================================================================
@@ -147,12 +152,12 @@ ticket_texts = [
 ]
 
 # -----------------------------------------------------------------------------
-# Generate embeddings via OpenAI API
+# Generate embeddings via the OpenRouter API
 # -----------------------------------------------------------------------------
 # This is a BATCH call - we send all texts at once for efficiency
 # The API returns one embedding per input text
 #
-# ⚠️ RATE LIMITS: Be aware of OpenAI's rate limits for production!
+# ⚠️ RATE LIMITS: Be aware of OpenRouter's rate limits for production!
 # ⚠️ COST: ~$0.02 per 1M tokens for text-embedding-3-small
 # -----------------------------------------------------------------------------
 print("\nGenerating embeddings for all tickets...")

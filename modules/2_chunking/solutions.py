@@ -22,7 +22,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize embeddings
-embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
+embeddings = OpenAIEmbeddings(
+    model=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
+)
 
 # Load data
 print("Loading data...")

@@ -35,7 +35,10 @@ class SupportTicketTools:
         
         # Create vector store for RAG
         self.embeddings = OpenAIEmbeddings(
-            model=os.getenv('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small')
+            model=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+            api_key=os.getenv('OPENROUTER_API_KEY'),
+            base_url="https://openrouter.ai/api/v1",
+            check_embedding_ctx_length=False,
         )
         self._setup_vectorstore()
     

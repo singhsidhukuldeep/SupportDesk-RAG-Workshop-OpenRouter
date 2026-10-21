@@ -21,13 +21,24 @@ from llama_index.core import (
 )
 from llama_index.core.vector_stores import MetadataFilters, ExactMatchFilter
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai_like import OpenAILike
 
 load_dotenv()
 
 # Configure LlamaIndex
-Settings.embed_model = OpenAIEmbedding(model='text-embedding-3-small')
-Settings.llm = OpenAI(model='gpt-4o-mini')
+Settings.embed_model = OpenAIEmbedding(
+    model_name=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    api_base="https://openrouter.ai/api/v1",
+)
+Settings.llm = OpenAILike(
+    model=os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-6-luna'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    api_base="https://openrouter.ai/api/v1",
+    is_chat_model=True,
+    is_function_calling_model=True,
+    context_window=128000,
+)
 
 # Load data
 print("Loading data...")

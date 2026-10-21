@@ -41,11 +41,11 @@ An embedding is a dense vector (array of numbers) that represents text in high-d
 ```python
 from openai import OpenAI
 
-client = OpenAI(api_key="your-api-key")
+client = OpenAI(api_key="your-openrouter-api-key", base_url="https://openrouter.ai/api/v1")
 
 # Single text
 response = client.embeddings.create(
-    model="text-embedding-3-small",
+    model="openai/text-embedding-3-small",
     input="How do I reset my password?"
 )
 embedding = response.data[0].embedding  # List of 1536 floats
@@ -53,7 +53,7 @@ embedding = response.data[0].embedding  # List of 1536 floats
 # Batch processing (more efficient)
 texts = ["text 1", "text 2", "text 3"]
 response = client.embeddings.create(
-    model="text-embedding-3-small",
+    model="openai/text-embedding-3-small",
     input=texts
 )
 embeddings = [item.embedding for item in response.data]
@@ -150,7 +150,7 @@ def get_or_create_embedding(text, cache={}):
     
     # Generate embedding
     response = client.embeddings.create(
-        model="text-embedding-3-small",
+        model="openai/text-embedding-3-small",
         input=text
     )
     embedding = response.data[0].embedding
@@ -198,8 +198,8 @@ plt.show()
 ### 1. Comparing Different Models
 ❌ **Wrong**: Compare embeddings from different models
 ```python
-embedding1 = get_embedding("text", model="text-embedding-3-small")
-embedding2 = get_embedding("text", model="text-embedding-3-large")
+embedding1 = get_embedding("text", model="openai/text-embedding-3-small")
+embedding2 = get_embedding("text", model="openai/text-embedding-3-large")
 similarity = cosine_similarity(embedding1, embedding2)  # Invalid!
 ```
 
@@ -230,7 +230,7 @@ from tenacity import retry, wait_exponential, stop_after_attempt
 @retry(wait=wait_exponential(min=1, max=60), stop=stop_after_attempt(3))
 def get_embedding_with_retry(text):
     return client.embeddings.create(
-        model="text-embedding-3-small",
+        model="openai/text-embedding-3-small",
         input=text
     )
 ```
@@ -290,7 +290,7 @@ def find_outliers(embeddings, threshold=0.3):
 ```python
 # Get 512D embeddings instead of 1536D
 response = client.embeddings.create(
-    model="text-embedding-3-small",
+    model="openai/text-embedding-3-small",
     input=text,
     dimensions=512  # Reduce storage by 66%
 )
@@ -300,7 +300,7 @@ response = client.embeddings.create(
 ```python
 import tiktoken
 
-def estimate_embedding_cost(texts, model="text-embedding-3-small"):
+def estimate_embedding_cost(texts, model="openai/text-embedding-3-small"):
     encoding = tiktoken.get_encoding("cl100k_base")
     total_tokens = sum(len(encoding.encode(text)) for text in texts)
     
@@ -335,9 +335,9 @@ import asyncio
 from openai import AsyncOpenAI
 
 async def embed_async(texts):
-    client = AsyncOpenAI()
+    client = AsyncOpenAI(api_key=os.getenv("OPENROUTER_API_KEY"), base_url="https://openrouter.ai/api/v1")
     tasks = [
-        client.embeddings.create(model="text-embedding-3-small", input=text)
+        client.embeddings.create(model="openai/text-embedding-3-small", input=text)
         for text in texts
     ]
     responses = await asyncio.gather(*tasks)

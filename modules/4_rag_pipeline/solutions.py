@@ -55,7 +55,12 @@ print(f"✓ Loaded {len(documents)} documents")
 
 # Create vector store
 print("Building vector store...")
-embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
+embeddings = OpenAIEmbeddings(
+    model=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
+)
 vector_store = Chroma.from_documents(
     documents=documents,
     embedding=embeddings,
@@ -66,7 +71,14 @@ print("✓ Vector store ready")
 
 # Create retriever and LLM
 retriever = vector_store.as_retriever(search_kwargs={"k": 3})
-llm = ChatOpenAI(model='gpt-4o-mini', temperature=0, timeout=120, max_retries=3)
+llm = ChatOpenAI(
+    model=os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-6-luna'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0,
+    timeout=120,
+    max_retries=3,
+)
 
 def format_docs(docs):
     """
@@ -544,7 +556,9 @@ from langchain_core.callbacks import StreamingStdOutCallbackHandler
 
 # Create streaming LLM
 streaming_llm = ChatOpenAI(
-    model="gpt-4o-mini",
+    model=os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-6-luna'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
     temperature=0,
     streaming=True,
     callbacks=[StreamingStdOutCallbackHandler()],

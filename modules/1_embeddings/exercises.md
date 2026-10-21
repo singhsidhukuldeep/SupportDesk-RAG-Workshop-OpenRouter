@@ -124,8 +124,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from dotenv import load_dotenv
 
 load_dotenv()
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-model = 'text-embedding-3-small'
+client = OpenAI(api_key=os.getenv('OPENROUTER_API_KEY'), base_url="https://openrouter.ai/api/v1")
+model = 'openai/text-embedding-3-small'
 
 # These mean the SAME thing but use DIFFERENT words
 texts = [
@@ -182,8 +182,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from dotenv import load_dotenv
 
 load_dotenv()
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-model = 'text-embedding-3-small'
+client = OpenAI(api_key=os.getenv('OPENROUTER_API_KEY'), base_url="https://openrouter.ai/api/v1")
+model = 'openai/text-embedding-3-small'
 
 # Load data
 with open('../../data/synthetic_tickets.json', 'r') as f:
@@ -246,8 +246,8 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-model = 'text-embedding-3-small'
+client = OpenAI(api_key=os.getenv('OPENROUTER_API_KEY'), base_url="https://openrouter.ai/api/v1")
+model = 'openai/text-embedding-3-small'
 
 texts = [
     "Password reset not working",
@@ -299,7 +299,7 @@ import matplotlib.pyplot as plt
 from dotenv import load_dotenv
 
 load_dotenv()
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+client = OpenAI(api_key=os.getenv('OPENROUTER_API_KEY'), base_url="https://openrouter.ai/api/v1")
 
 # Load first 10 tickets
 with open('../../data/synthetic_tickets.json', 'r') as f:
@@ -307,7 +307,7 @@ with open('../../data/synthetic_tickets.json', 'r') as f:
 
 # Generate embeddings
 texts = [t['title'] for t in tickets]
-response = client.embeddings.create(input=texts, model='text-embedding-3-small')
+response = client.embeddings.create(input=texts, model='openai/text-embedding-3-small')
 embeddings = np.array([data.embedding for data in response.data])
 
 # Compute similarity matrix

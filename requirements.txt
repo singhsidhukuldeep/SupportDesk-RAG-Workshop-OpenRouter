@@ -10,6 +10,7 @@ langgraph>=0.2.0
 llama-index>=0.12.0
 llama-index-embeddings-openai
 llama-index-llms-openai
+llama-index-llms-openai-like  # chat models via OpenRouter
 
 # Vector Stores
 faiss-cpu>=1.9.0
@@ -21,7 +22,7 @@ rouge-score>=0.1.2
 nltk>=3.8.0
 scipy>=1.17.0
 
-# LLM and Embeddings APIs
+# LLM and Embeddings APIs (OpenAI-compatible client, pointed at OpenRouter)
 openai>=1.50.0
 
 # Data Processing

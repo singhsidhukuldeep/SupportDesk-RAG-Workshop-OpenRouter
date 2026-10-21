@@ -350,7 +350,12 @@ Quick experiment:
 ```python
 from langchain_openai import OpenAIEmbeddings
 
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings = OpenAIEmbeddings(
+    model="openai/text-embedding-3-small",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    check_embedding_ctx_length=False,
+)
 ```
 
 What this solves:
@@ -465,7 +470,7 @@ Implements Runnable: `prompt.invoke({"context": ..., "question": ...})` → `Cha
 ```python
 from langchain_openai import ChatOpenAI
 
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm = ChatOpenAI(model="openai/gpt-6-luna", base_url="https://openrouter.ai/api/v1", api_key=os.getenv("OPENROUTER_API_KEY"), temperature=0)
 ```
 
 - `temperature=0` is recommended for factual / support workflows.

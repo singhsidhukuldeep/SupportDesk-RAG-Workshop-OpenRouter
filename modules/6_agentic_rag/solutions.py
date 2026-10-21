@@ -32,7 +32,12 @@ class SupportTicketToolsEnhanced:
         with open(tickets_path, 'r', encoding='utf-8') as f:
             self.tickets = json.load(f)
         
-        self.embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
+        self.embeddings = OpenAIEmbeddings(
+            model=os.getenv('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+            api_key=os.getenv('OPENROUTER_API_KEY'),
+            base_url="https://openrouter.ai/api/v1",
+            check_embedding_ctx_length=False,
+        )
         self._setup_vectorstore()
     
     def _setup_vectorstore(self):
@@ -225,7 +230,12 @@ tools = tool_manager.get_tools()
 print(f"✓ Created {len(tools)} tools")
 
 # Initialize LLM with tools
-llm = ChatOpenAI(model=os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini'), temperature=0)
+llm = ChatOpenAI(
+    model=os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-6-luna'),
+    api_key=os.getenv('OPENROUTER_API_KEY'),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0,
+)
 
 tool_definitions = []
 for tool in tools:

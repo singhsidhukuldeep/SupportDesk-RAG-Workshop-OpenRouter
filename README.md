@@ -1,9 +1,9 @@
 # SupportDesk-RAG: A Support Ticket Retrieval & Troubleshooting Assistant
 
-## Hands-On RAG Workshop with OpenAI
+## Hands-On RAG Workshop with OpenRouter
 
 ### Workshop Overview
-This comprehensive workshop teaches you to build a production-ready Retrieval-Augmented Generation (RAG) system using OpenAI embeddings and language models. By the end, you'll have a working assistant that answers incident queries using retrieved ticket context, with strong safeguards against hallucinations.
+This comprehensive workshop teaches you to build a production-ready Retrieval-Augmented Generation (RAG) system using OpenAI embeddings and language models, accessed through [OpenRouter](https://openrouter.ai). By the end, you'll have a working assistant that answers incident queries using retrieved ticket context, with strong safeguards against hallucinations.
 
 ### Learning Objectives
 - ✅ Generate and work with OpenAI embeddings
@@ -102,7 +102,7 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 6. Configure OpenAI API
+### 6. Configure the OpenRouter API
 
 **Windows (PowerShell):**
 ```powershell
@@ -116,10 +116,13 @@ cp .env.example .env
 
 Then edit `.env` and set:
 ```env
-OPENAI_API_KEY=sk-your-key-here
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small
-OPENAI_CHAT_MODEL=gpt-4o-mini
+OPENROUTER_API_KEY=sk-or-your-key-here
+OPENROUTER_EMBEDDING_MODEL=openai/text-embedding-3-small
+OPENROUTER_CHAT_MODEL=openai/gpt-6-luna
 ```
+
+OpenRouter uses the same API format as OpenAI, so the code keeps using the `openai`, `langchain-openai`
+and LlamaIndex OpenAI-compatible clients, pointed at `https://openrouter.ai/api/v1`.
 
 ### 7. Run a smoke test
 ```bash
@@ -135,7 +138,7 @@ If Module 1 runs, your environment is ready.
 
 ### Module 1: Embeddings (`modules/1_embeddings/`)
 **Learn:**
-- Generate embeddings using OpenAI API
+- Generate embeddings using the OpenRouter API (OpenAI embedding models)
 - Compute semantic similarity scores
 - Visualize similarity relationships with heatmaps
 
@@ -215,12 +218,12 @@ python demo.py
 ### Module 6: Agentic RAG (`modules/6_agentic_rag/`)
 **Learn:**
 - Creating custom tools for LangChain agents
-- Building agents with OpenAI function calling
+- Building agents with function (tool) calling
 - Implementing conversation memory
 - Multi-step reasoning with tool selection
 - Comparing agentic vs direct RAG approaches
 
-**Technologies:** LangChain Agents, OpenAI Function Calling
+**Technologies:** LangChain Agents, Function Calling
 
 **Run:**
 ```bash
@@ -310,39 +313,44 @@ Create a `.env` file with:
 
 ```env
 # Required
-OPENAI_API_KEY=your_openai_api_key_here
+OPENROUTER_API_KEY=your_openrouter_api_key_here
 
 # Optional (defaults shown)
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small
-OPENAI_CHAT_MODEL=gpt-4o-mini
+OPENROUTER_EMBEDDING_MODEL=openai/text-embedding-3-small
+OPENROUTER_CHAT_MODEL=openai/gpt-6-luna
 ```
 
 ### Model Options
 
+Use OpenRouter model IDs (the `provider/model` form). Browse them at https://openrouter.ai/models.
+
 **Embeddings:**
-- `text-embedding-3-small` (1536 dims, recommended)
-- `text-embedding-3-large` (3072 dims, highest quality)
+- `openai/text-embedding-3-small` (1536 dims, recommended)
+- `openai/text-embedding-3-large` (3072 dims, highest quality)
 
 **Chat:**
-- `gpt-4o-mini` (recommended for cost/performance)
-- `gpt-4o` (most capable)
+- `openai/gpt-6-luna` (default)
+- `openai/gpt-6-luna-pro` (more capable, more expensive)
+
+Note: `gpt-6-luna` does not support the `temperature` setting. OpenRouter ignores it, so the
+`temperature=0` lines in the code are harmless but have no effect with this model.
 
 ---
 
 ## 💰 Cost Estimate
 
-Running all modules: **< $0.10**
-- Embeddings: ~$0.01 (20 tickets + queries)
-- Chat completions: ~$0.05 (RAG pipeline demos)
+Running every module demo once: **≈ $0.006** (measured 2026-10-21 on OpenRouter)
+- Embeddings (`openai/text-embedding-3-small`): ≈ $0.0005 for the whole run
+- Chat (`openai/gpt-6-luna`): ≈ $0.0054, mostly Module 3 (Tree/Keyword indexes) and Module 6 (agent loop)
 
-See [OpenAI Pricing](https://openai.com/pricing) for current rates.
+See [OpenRouter Models](https://openrouter.ai/models) for current rates.
 
 ---
 
 ## 🎯 Prerequisites
 
 - Python 3.12.x — **not 3.13/3.14**
-- OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+- OpenRouter API key ([Get one here](https://openrouter.ai/keys))
 - Basic understanding of Python
 - Familiarity with APIs (helpful but not required)
 
@@ -375,9 +383,10 @@ py --version
 py -3.12 -m venv .venv
 ```
 
-### OpenAI API Errors
-- Verify API key in `.env` file
-- Check credits: https://platform.openai.com/usage
+### OpenRouter API Errors
+- Verify `OPENROUTER_API_KEY` in your `.env` file
+- `401 User not found` means the key is invalid or was deleted: create a new one
+- Check credits: https://openrouter.ai/settings/credits
 - Rate limits: Wait 60s if you get 429 errors
 
 ### Import Errors
@@ -402,6 +411,7 @@ pip install -r requirements.txt
 - [LangChain Documentation](https://python.langchain.com/)
 - [LlamaIndex Documentation](https://docs.llamaindex.ai/)
 - [FAISS Documentation](https://github.com/facebookresearch/faiss)
+- [OpenRouter API Reference](https://openrouter.ai/docs)
 - [OpenAI API Reference](https://platform.openai.com/docs)
 - [Chroma Documentation](https://docs.trychroma.com/)
 

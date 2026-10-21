@@ -250,7 +250,9 @@ from langchain_core.callbacks import StreamingStdOutCallbackHandler
 
 # Create streaming LLM
 streaming_llm = ChatOpenAI(
-    model="gpt-4o-mini",
+    model="openai/gpt-6-luna",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
     temperature=0,
     streaming=True,
     callbacks=[StreamingStdOutCallbackHandler()]
