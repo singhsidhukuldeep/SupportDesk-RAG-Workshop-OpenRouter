@@ -177,6 +177,7 @@ recursive_splitter = RecursiveCharacterTextSplitter(
 recursive_chunks = recursive_splitter.split_documents(documents)
 
 print(f"✓ Created {len(recursive_chunks)} chunks")
+print(f"  Chunk size: 300 chars, Overlap: 50 chars")
 print(f"  Tries to split on paragraph/sentence boundaries")
 print(f"  Sample chunk: {recursive_chunks[0].page_content[:100]}...")
 
@@ -521,6 +522,7 @@ print("="*80)
 # We want to search ONLY authentication-related tickets
 # -----------------------------------------------------------------------------
 print("\nSearching only in 'Authentication' category:")
+print(f"Query: '{query}'")
 filtered_results = chroma_store.similarity_search(
     query,
     k=3,
@@ -541,8 +543,10 @@ for i, doc in enumerate(filtered_results, 1):
 # Combine semantic search with priority filter
 # -----------------------------------------------------------------------------
 print("\n\nSearching only 'High' priority tickets:")
+query = "Database performance issues"
+print(f"Query: '{query}'")
 high_priority_results = chroma_store.similarity_search(
-    "Database performance issues",
+    query,
     k=3,
     filter={"priority": "High"}  # Only high priority
 )

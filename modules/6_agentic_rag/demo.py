@@ -76,6 +76,17 @@ for tool in tools:
 # Bind tools to LLM
 llm_with_tools = llm.bind(tools=tool_definitions)
 
+# NOTE: LangChain also provides `bind_tools()` which does the same thing without
+# needing the manual tool_definitions conversion above:
+#
+#   llm_with_tools = llm.bind_tools(tools)
+#
+# `bind_tools()` auto-converts LangChain Tool objects to the OpenAI function schema
+# using the tool's name, description, and function signature. We use the manual
+# approach here so you can see exactly what the OpenAI format looks like.
+# If you switch to bind_tools(), also update line ~129: tool_call["args"] will use
+# the actual function parameter names (e.g. "query") instead of the hardcoded "input".
+
 print(f"✓ Created {len(tools)} tools:")
 for tool in tools:
     print(f"  • {tool.name}: {tool.description.split('.')[0]}")
@@ -298,6 +309,7 @@ Before each tool call, provide a short public rationale in content using this ex
             tool_input = tool_call["args"].get("input", "")
             
             print(f"\n🔧 Calling tool: {tool_name}")
+            print(f"   Input: {tool_input}")
             
             tool_output = None
             for tool in tools:
@@ -308,6 +320,8 @@ Before each tool call, provide a short public rationale in content using this ex
             if tool_output is None:
                 tool_output = f"Error: Tool {tool_name} not found"
             
+            print(f"   Output: {tool_output[:200]}...")
+
             messages.append(ToolMessage(
                 content=tool_output,
                 tool_call_id=tool_call["id"]
@@ -384,5 +398,5 @@ print("""
 """)
 
 print("\n" + "="*80)
-print("Demo completed! Check exercises.md for hands-on practice.")
+print("Demo completed!")
 print("="*80)

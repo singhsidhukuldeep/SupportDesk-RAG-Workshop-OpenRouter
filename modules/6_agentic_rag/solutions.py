@@ -219,7 +219,17 @@ Input: Category name (e.g., 'Database', 'Authentication')."""
                 description="""Get statistics and overview of the ticket database.
 Use when user asks "how many tickets", "give me an overview", or "statistics".
 No input needed - provides total count, category breakdown, and priority breakdown."""
-            )
+            ),
+            # Exercise 4 reference implementation — uncomment to expose as a
+            # standalone tool instead of the small-patch approach in
+            # search_similar_tickets (the "critical" keyword branch).
+            Tool(
+                name="SearchByPriority",
+                func=self.search_by_priority,
+                description="""Find all tickets with a specific priority level.
+            Input should be: Critical, High, Medium, or Low.
+            Use when user asks about urgent/important issues or priority levels."""
+            ),
         ]
 
 
@@ -347,11 +357,11 @@ test_queries = [
     ("Show me ticket TICK-005", "GetTicketByID"),
     ("What payment issues have we seen?", "SearchByCategory"),
     ("Give me an overview of tickets", "GetTicketStatistics"),
-    ("How many critical tickets are there?", "GetTicketStatistics"),  # Exercise 4 small patch
+    ("How many critical tickets are there?", "SearchByPriority"),  # Exercise 4 small patch
 ]
 
-for query, expected_tool in test_queries:
-    print(f"\n--- Query: '{query}' ---")
+for i, (query, expected_tool) in enumerate(test_queries, 1):
+    print(f"\n--- Query {i}: '{query}' ---")
     print(f"Expected tool: {expected_tool}")
     
     result = run_agent(query)
@@ -391,14 +401,14 @@ for query in multi_step_queries:
 # Exercise 7: Interactive Conversation Loop
 # ============================================================================
 print("\n" + "=" * 80)
-print("EXERCISE 7: Interactive Chat (Simulated)")
+print("EXERCISE 7: Interactive Chat (Simulated) [without chat history]")
 print("=" * 80)
 
 # Simulated conversation
 simulated_conversation = [
     "What authentication issues have we seen?",
     "Tell me about TICK-001",
-    "What was the priority?"
+    "What was the priority?",
 ]
 
 print("\nSimulating interactive conversation:")
@@ -507,19 +517,20 @@ evaluation_cases = [
     {"query": "Show ticket TICK-001", "expected_tool": "GetTicketByID"},
     {"query": "How many tickets?", "expected_tool": "GetTicketStatistics"},
     {"query": "All payment tickets", "expected_tool": "SearchByCategory"},
-    {"query": "How many critical tickets are there?", "expected_tool": "GetTicketStatistics"},
+    {"query": "How many critical tickets are there?", "expected_tool": "SearchByPriority"},
 ]
 
 correct = 0
 total = len(evaluation_cases)
 
-print("\nRunning evaluation...")
+print("\nRunning evaluation...\n")
 for test in evaluation_cases:
     result = run_agent(test['query'])
     passed = test['expected_tool'] in result['tools_used']
     if passed:
         correct += 1
     print(f"  {'✓' if passed else '✗'} '{test['query'][:30]}...' → {result['tools_used']}")
+    print("-" * 70)
 
 accuracy = correct / total * 100
 print(f"\nTool Selection Accuracy: {correct}/{total} ({accuracy:.0f}%)")

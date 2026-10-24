@@ -58,11 +58,6 @@ documents = [
 ]
 print(f"✓ Loaded {len(documents)} documents\n")
 
-# Build vector index (fast - just embeddings, no LLM calls)
-print("Building Vector Index...")
-vector_index = VectorStoreIndex.from_documents(documents)
-print("✓ Vector Index built\n")
-
 
 # ============================================================================
 # Exercise 1: Change the Query (Easy)
@@ -72,7 +67,9 @@ print("EXERCISE 1: Change the Query")
 print("=" * 80)
 
 # Build a simple vector index for testing
+print("Building Vector Index...")
 vector_index = VectorStoreIndex.from_documents(documents)
+print("✓ Vector Index built\n")
 query_engine = vector_index.as_query_engine(similarity_top_k=3)
 
 queries = [
@@ -85,6 +82,10 @@ for query in queries:
     response = query_engine.query(query)
     print(f"\nQuery: '{query}'")
     print(f"Answer: {str(response)[:150]}...")
+    for i, node in enumerate(response.source_nodes[:3], 1):
+        print(f"  Source {i}: [{node.metadata.get('ticket_id', '?')}] {node.text[:50]}...")
+    print("-" * 60)
+
 
 
 # ============================================================================
@@ -96,17 +97,25 @@ print("=" * 80)
 
 query = "authentication login problem"
 
+print(f"\n>> Query: '{query}'")
+
 # top_k = 3 (original)
 engine_3 = vector_index.as_query_engine(similarity_top_k=3)
 response_3 = engine_3.query(query)
 print(f"\nWith similarity_top_k=3:")
+print(f"  Answer: {str(response_3)[:150]}...")
 print(f"  Sources: {len(response_3.source_nodes)} documents used")
+for i, node in enumerate(response_3.source_nodes[:3], 1):
+    print(f"    Source {i}: [{node.metadata.get('ticket_id', '?')}] {node.text[:50]}...")
 
 # top_k = 5 (changed)
 engine_5 = vector_index.as_query_engine(similarity_top_k=5)
 response_5 = engine_5.query(query)
 print(f"\nWith similarity_top_k=5:")
+print(f"  Answer: {str(response_5)[:150]}...")
 print(f"  Sources: {len(response_5.source_nodes)} documents used")
+for i, node in enumerate(response_5.source_nodes[:5], 1):
+    print(f"    Source {i}: [{node.metadata.get('ticket_id', '?')}] {node.text[:80]}...")
 
 
 # ============================================================================
@@ -190,7 +199,7 @@ def query_with_branch_info(tree_index, query, branch_factor):
     
     tree_engine = tree_index.as_query_engine(
         child_branch_factor=branch_factor,
-        verbose=True
+        verbose=False
     )
     
     start = time.time()
@@ -234,6 +243,9 @@ print(f"branch_factor=2: {len(response_2.source_nodes)} source nodes retrieved")
 print(f"branch_factor=3: {len(response_3.source_nodes)} source nodes retrieved")
 
 
+# Disable verbose logging for remaining exercises
+logging.basicConfig(level=logging.WARNING, force=True)
+
 # ============================================================================
 # Exercise 4: Test a Keyword-Specific Query (Easy)
 # ============================================================================
@@ -246,12 +258,19 @@ keyword_index = KeywordTableIndex.from_documents(documents)
 keyword_engine = keyword_index.as_query_engine()
 print("✓ Keyword Index built")
 
+# Enable keyword retriever logging to see which keywords are matched
+logging.getLogger("llama_index.core.indices.keyword_table.retrievers").setLevel(logging.INFO)
+
 keyword_queries = ["TICK-001", "authentication", "database timeout"]
 
 for query in keyword_queries:
     response = keyword_engine.query(query)
     print(f"\nKeyword query: '{query}'")
     print(f"  Answer: {str(response)[:150]}...")
+    print(":==============================================:")
+
+# Disable keyword retriever logging
+logging.getLogger("llama_index.core.indices.keyword_table.retrievers").setLevel(logging.WARNING)
 
 
 # ============================================================================
@@ -321,6 +340,8 @@ print("EXERCISE 7: Add Metadata Filtering")
 print("=" * 80)
 
 query = "system problem"
+
+print(f"\n>> Query: '{query}'")
 
 # Without filter
 print("\nWithout filter:")
@@ -405,13 +426,13 @@ for i, node in enumerate(keyword_nodes[:3], 1):
 # Simple hybrid: combine and deduplicate
 seen = set()
 hybrid_results = []
-for node in vector_nodes + keyword_nodes:
+for node in vector_nodes[:3] + keyword_nodes[:3]:
     ticket_id = node.node.metadata.get('ticket_id')
     if ticket_id and ticket_id not in seen:
         seen.add(ticket_id)
         hybrid_results.append(ticket_id)
 
-print(f"\nHybrid Results (combined): {hybrid_results[:5]}")
+print(f"\nHybrid Results (combined): {hybrid_results}")
 
 
 # ============================================================================

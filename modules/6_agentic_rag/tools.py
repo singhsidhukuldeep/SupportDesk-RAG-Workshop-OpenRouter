@@ -210,7 +210,7 @@ Use this when the user mentions a specific ticket number."""
                 name="SearchByCategory",
                 func=self.search_by_category,
                 description="""Use this tool to find all tickets in a specific category.
-Input should be a category name like 'Authentication', 'Database', 'Payment', etc.
+Input should be a category name like 'Authentication', 'Database', 'Payment', 'Mobile', etc.
 Use this when the user wants to see all issues of a certain type."""
             ),
             Tool(
@@ -222,3 +222,20 @@ No input needed - just call this tool.
 Use this when the user asks for statistics, summaries, or overview of tickets."""
             )
         ]
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Example: Using the @tool decorator to create a tool from any function
+# ──────────────────────────────────────────────────────────────────────
+# from langchain_core.tools import tool
+#
+# @tool
+# def add_two_numbers(a: int, b: int) -> int:
+#     """Add two numbers together and return the result."""
+#     return a + b
+#
+# The @tool decorator automatically converts a Python function into a
+# LangChain Tool, using the function name as the tool name and the
+# docstring as the tool description. You can then pass add_two_numbers
+# directly into an agent's tool list.
+# ──────────────────────────────────────────────────────────────────────

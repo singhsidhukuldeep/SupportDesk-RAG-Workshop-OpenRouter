@@ -254,16 +254,16 @@ for i, node in enumerate(vector_response.source_nodes, 1):
 #   ┌──────────────────────────────────────────────────┐
 #   │  Query: "auth issues after password reset"       │
 #   │                                                  │
-#   │  Doc 1 → [LLM: Relevant?] → YES ────┐           │
-#   │  Doc 2 → [LLM: Relevant?] → NO      │           │
-#   │  Doc 3 → [LLM: Relevant?] → YES ────┤           │
-#   │  Doc 4 → [LLM: Relevant?] → NO      │           │
-#   │  ...                                │           │
-#   │  Doc N → [LLM: Relevant?] → YES ────┤           │
-#   │                                     ▼           │
-#   │                              [Synthesize]       │
-#   │                                     │           │
-#   │                                  Answer         │
+#   │  Doc 1 → [LLM: Relevant?] → YES ────┐            │
+#   │  Doc 2 → [LLM: Relevant?] → NO      │            │
+#   │  Doc 3 → [LLM: Relevant?] → YES ────┤            │
+#   │  Doc 4 → [LLM: Relevant?] → NO      │            │
+#   │  ...                                │            │
+#   │  Doc N → [LLM: Relevant?] → YES ────┤            │
+#   │                                     ▼            │
+#   │                              [Synthesize]        │
+#   │                                     │            │
+#   │                                  Answer          │
 #   └──────────────────────────────────────────────────┘
 #
 # WHY IT'S SLOW:
@@ -379,16 +379,16 @@ for i, node in enumerate(summary_response.source_nodes[:3], 1):
 #   │   [Auth Issues]    [Performance]      [Billing]        │
 #   │     (summary)        (summary)         (summary)       │
 #   │        │                 │                 │           │
-#   │   ┌────┼────┐    ┌───────┼───────┐     ┌──┴──┐        │
-#   │   ▼         ▼    ▼       ▼       ▼     ▼     ▼        │
-#   │ [T-1]    [T-5] [T-7]   [T-9]  [T-12] [T-20] [T-25]   │
+#   │   ┌────┼────┐    ┌───────┼───────┐      ┌──┴──┐        │
+#   │   ▼         ▼    ▼       ▼       ▼      ▼     ▼        │
+#   │ [T-1]    [T-5] [T-7]   [T-9]  [T-12]   [T-20] [T-25]   │
 #   │ (leaf)  (leaf) (leaf)  (leaf)  (leaf) (leaf) (leaf)    │
 #   │                                                        │
 #   │ Query: "auth issues after password reset"              │
 #   │   child_branch_factor=1:                               │
-#   │     Root → Auth Issues (best) → T-1 (best leaf)       │
+#   │     Root → Auth Issues (best) → T-1 (best leaf)        │
 #   │   child_branch_factor=2:                               │
-#   │     Root → Auth + Perf → T-1, T-5, T-7, T-9           │
+#   │     Root → Auth + Perf → T-1, T-5, T-7, T-9            │
 #   └────────────────────────────────────────────────────────┘
 #
 # WHY IT'S EFFICIENT:
@@ -443,7 +443,7 @@ print(f"Building Tree Index with {len(tree_documents)} documents...")
 #   Documents loaded in order preserve locality of topic.
 #   The LLM summary layer compensates for any mixed groups.
 # -----------------------------------------------------------------------------
-tree_index = TreeIndex.from_documents(tree_documents)
+tree_index = TreeIndex.from_documents(tree_documents, num_children=10)
 
 # -----------------------------------------------------------------------------
 # Create Query Engine
@@ -506,15 +506,15 @@ for i, node in enumerate(tree_response.source_nodes[:3], 1):
 #   ┌────────────────────────────────────────────────┐
 #   │  Keyword Table (Inverted Index)                │
 #   │                                                │
-#   │  "password"  →  [T-1, T-5, T-12]              │
-#   │  "login"     →  [T-1, T-3, T-8]               │
-#   │  "timeout"   →  [T-7, T-15]                   │
-#   │  "billing"   →  [T-20, T-25]                  │
-#   │  "API"       →  [T-30, T-35, T-42]            │
+#   │  "password"  →  [T-1, T-5, T-12]               │
+#   │  "login"     →  [T-1, T-3, T-8]                │
+#   │  "timeout"   →  [T-7, T-15]                    │
+#   │  "billing"   →  [T-20, T-25]                   │
+#   │  "API"       →  [T-30, T-35, T-42]             │
 #   │                                                │
 #   │  Query: "password reset after login"           │
 #   │         └─→ Keywords: {password, login}        │
-#   │         └─→ Match: T-1 (both keywords!)       │
+#   │         └─→ Match: T-1 (both keywords!)        │
 #   └────────────────────────────────────────────────┘
 #
 # KEY LIMITATION - No Semantic Understanding:
@@ -673,7 +673,7 @@ for node in vector_nodes + keyword_nodes:
 
 # Documents found by BOTH methods are likely most relevant!
 
-print("\nHybrid Retrieval Results (Combined):")
+print("\nHybrid Retrieval Results (Combined-naive):")
 for i, node in enumerate(hybrid_nodes[:3], 1):
     print(f"\n{i}. {node.metadata.get('ticket_id', 'Unknown')}")
     if hasattr(node, 'score') and node.score:

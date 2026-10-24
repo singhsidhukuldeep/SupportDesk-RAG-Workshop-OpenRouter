@@ -134,6 +134,8 @@ Answer (bullet points with sources):"""
 templates = [("Concise", template_a), ("Step-by-step", template_b), ("Bullet points", template_c)]
 test_query = "How do I fix authentication issues?"
 
+print(f"\nQuery: {test_query}")
+
 for name, template in templates:
     prompt = ChatPromptTemplate.from_template(template)
     chain = (
@@ -143,7 +145,7 @@ for name, template in templates:
         | StrOutputParser()
     )
     
-    print(f"\n{name} template:")
+    print(f"\n\n >>{name} template:")
     response = chain.invoke(test_query)
     print(f"  {response[:200]}...")
 
@@ -156,6 +158,8 @@ print("EXERCISE 2: Adjust Retrieval Parameters")
 print("=" * 80)
 
 test_query = "Payment processing failures"
+
+print(f"\nQuery: {test_query}")
 
 # Test different k values
 for k in [1, 3, 5, 10]:
@@ -268,7 +272,7 @@ print("\n" + "=" * 80)
 print("EXERCISE 4: Build a Fallback System")
 print("=" * 80)
 
-def smart_rag(query, vector_store, llm, min_score_threshold=0.7):
+def smart_rag(query, vector_store, llm, min_score_threshold=0.6):
     """
     RAG with confidence-based fallbacks.
 
@@ -291,7 +295,7 @@ def smart_rag(query, vector_store, llm, min_score_threshold=0.7):
     
     print(f"  Best match distance: {best_distance:.4f}")
     
-    if best_distance < 0.5:  # Very relevant
+    if best_distance < min_score_threshold:  
         # High-confidence path: construct full grounded prompt and answer directly.
         docs = [doc for doc, score in docs_with_scores]
         context = format_docs(docs)
@@ -307,12 +311,13 @@ Answer:"""
         response = llm.invoke(prompt)
         return response.content, "high_confidence"
     
-    elif best_distance < 1.0:  # Somewhat relevant
+    elif best_distance < 0.9:  # Somewhat relevant
         # Medium-confidence path: avoid overclaiming, ask for confirmation/context.
         ticket_id = docs_with_scores[0][0].metadata['ticket_id']
         return f"Found possibly relevant ticket ({ticket_id}), but confidence is moderate. Would you like me to show details?", "medium_confidence"
     
-    else:  # Not relevant
+    else:  # Not relevant: Distance has a general range of 0.4 to 0.9, so there is almost no possibility that we will reach here. 
+        # But theoretically Cosine distance range: [0, 2] (0 = identical, 1 = orthogonal, 2 = opposite)
         # Low-confidence path: safe refusal to avoid unsupported generation.
         return "I don't have relevant ticket history for this question.", "low_confidence"
 
@@ -410,11 +415,13 @@ from langchain_core.output_parsers import StrOutputParser
 # Compare different retrieval strategies using LCEL
 strategies = {
     "stuff": "Concatenate all documents into context (fast, simple)",
-    "map_reduce": "Process each doc separately, then combine (parallel)",
+    "map_reduce": "Process/summarise each doc separately, then combine (parallel)",
     "refine": "Iteratively refine answer with each doc (highest quality)"
 }
 
 test_query = "How do I fix database timeouts?"
+
+print(f"\nQuery: {test_query}")
 
 # ── STUFF strategy (default) ──────────────────────────────────────────
 # All retrieved docs are "stuffed" into a single {context} variable
@@ -519,6 +526,8 @@ print("=" * 80)
 
 query = "system problem"
 
+print(f"\nQuery: {query}")
+
 # Without filter
 print("\nWithout filter:")
 docs = vector_store.similarity_search(query, k=3)
@@ -560,8 +569,8 @@ streaming_llm = ChatOpenAI(
     api_key=os.getenv('OPENROUTER_API_KEY'),
     base_url="https://openrouter.ai/api/v1",
     temperature=0,
-    streaming=True,
-    callbacks=[StreamingStdOutCallbackHandler()],
+    streaming=True,                              # ← key flag: enable token streaming
+    callbacks=[StreamingStdOutCallbackHandler()],# ← print each token as it arrives
     timeout=120,
     max_retries=3
 )
@@ -580,7 +589,7 @@ Detailed Answer:""")
 streaming_chain = (
     {"context": retriever | format_docs, "question": RunnablePassthrough()}
     | prompt
-    | streaming_llm
+    | streaming_llm # ← only difference: streaming_llm instead of llm
     | StrOutputParser()
 )
 
@@ -653,19 +662,38 @@ Context:
 #     │
 #     ▼
 #   LLM → StrOutputParser → answer (str)
+# conv_chain = (
+#     # First, rewrite the question into a standalone form
+#     RunnablePassthrough.assign(
+#         standalone=condense_chain
+#     )
+#     # Then, use the standalone question to retrieve relevant docs
+#     | RunnablePassthrough.assign(
+#         context=itemgetter("standalone") | retriever | format_docs
+#     )
+#     | conv_prompt
+#     | llm
+#     | StrOutputParser()
+# )
+
 conv_chain = (
-    # First, rewrite the question into a standalone form
-    RunnablePassthrough.assign(
-        standalone=condense_chain
-    )
-    # Then, use the standalone question to retrieve relevant docs
-    | RunnablePassthrough.assign(
-        context=itemgetter("standalone") | retriever | format_docs
-    )
+    {
+        "context": condense_chain | retriever | format_docs,
+        "chat_history": itemgetter("chat_history"),
+        "question": itemgetter("question"),
+    }
     | conv_prompt
     | llm
     | StrOutputParser()
 )
+
+# Usage:
+#   chat_history = [
+#       HumanMessage(content="Why are users unable to log in after a password reset?"),
+#       AIMessage(content="Tickets TKT-101 and TKT-118 point to a stale session cache."),
+#   ]
+#   answer = conv_chain.invoke({"question": "How do I fix it?", "chat_history": chat_history})
+
 
 def ask_with_history(question, history):
     """
@@ -683,6 +711,7 @@ def ask_with_history(question, history):
         # Follow-up turn: rewrite the question using history context
         # e.g. "How do I fix it?" → "How do I fix authentication failures?"
         standalone = condense_chain.invoke({"question": question, "chat_history": history})
+        print(f">> Rewritten question for retrieval: '{standalone}'")
 
     # Retrieve docs using the standalone query and generate the answer
     context = format_docs(retriever.invoke(standalone))
@@ -705,10 +734,12 @@ conversation = [
 ]
 
 print("\nSimulated conversation:")
+# Start empty chat history
+chat_history = []
 for user_msg in conversation:
-    print(f"\nUser: {user_msg}")
+    print(f"\n>> User: {user_msg}")
     result = ask_with_history(user_msg, chat_history)
-    print(f"Assistant: {result[:200]}...")
+    print(f">> Assistant: {result[:200]}...")
 
 
 # ============================================================================

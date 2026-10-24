@@ -1,3 +1,4 @@
+.DS_Store
 .env
 .venv/
 .claude/
@@ -21,3 +22,4 @@ __pycache__/
 
 *.log
 modules/1_embeddings/embeddings_similarity_analysis.png
+modules/1_embeddings/solution_similarity_heatmap.png
