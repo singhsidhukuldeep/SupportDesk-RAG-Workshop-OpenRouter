@@ -115,7 +115,7 @@ Context: {context}
 
 Question: {question}
 
-Think step by step:
+Output step by step:
 1. What tickets are relevant?
 2. What information do they contain?
 3. How does this answer the question?
@@ -144,10 +144,10 @@ for name, template in templates:
         | llm
         | StrOutputParser()
     )
-    
+    print("" + "-" * 80)
     print(f"\n\n >>{name} template:")
     response = chain.invoke(test_query)
-    print(f"  {response[:200]}...")
+    print(f"  {response[:500]}...")
 
 
 # ============================================================================
