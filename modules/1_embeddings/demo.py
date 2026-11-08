@@ -74,11 +74,11 @@ client = OpenAI(
 #
 # OpenAI offers several embedding models (as of 2024):
 #
-# | Model                    | Dimensions | Cost          | Use Case            |
-# |--------------------------|------------|---------------|---------------------|
-# | text-embedding-3-small   | 1536       | $0.02/1M tok  | General purpose ✓   |
-# | text-embedding-3-large   | 3072       | $0.13/1M tok  | Higher quality      |
-# | text-embedding-ada-002   | 1536       | $0.10/1M tok  | Legacy (deprecated) |
+# | Model                    | Dimensions | Cost          | Released     | Use Case            |
+# |--------------------------|------------|---------------|--------------|---------------------|
+# | text-embedding-3-small   | 1536       | $0.02/1M tok  | Jan 25, 2024 | General purpose ✓   |
+# | text-embedding-3-large   | 3072       | $0.13/1M tok  | Jan 25, 2024 | Higher quality      |
+# | text-embedding-ada-002   | 1536       | $0.10/1M tok  | Dec 15, 2022 | Legacy (deprecated) |
 #
 # WE USE: text-embedding-3-small (called 'openai/text-embedding-3-small' on OpenRouter)
 #   - Good balance of quality and cost
